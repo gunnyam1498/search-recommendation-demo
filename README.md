@@ -1,5 +1,8 @@
-# Search recommendations UI
+# Social app screen recreations
 
-A responsive static recreation of the dark-mode account search screen.
+Responsive static recreations of two dark-mode social app screens.
 
-GitHub Actions publishes this site to GitHub Pages whenever a commit is pushed to `main`.
+- Search recommendations: `/`
+- Threads feed: `/threads.html`
+
+GitHub Actions publishes the site to GitHub Pages whenever a commit is pushed to `main`.

@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#101010" />
+  <title>Threads · 피드</title>
+  <style>
+    :root { color-scheme:dark; --bg:#101010; --fg:#f4f4f4; --muted:#838383; --blue:#159ee8; --line:#292929; }
+    * { box-sizing:border-box; }
+    html,body { margin:0; min-height:100%; background:var(--bg); color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans KR",sans-serif; }
+    body { overflow-x:hidden; }
+    .app { width:min(100%,393px); min-height:100svh; margin:0 auto; background:var(--bg); position:relative; padding-bottom:78px; }
+    .status { height:48px; padding:17px 9.4% 0 15.3%; display:flex; align-items:flex-start; justify-content:space-between; font-size:15px; font-weight:650; letter-spacing:-.3px; }
+    .sys { display:flex; align-items:center; gap:6px; font-size:12px; font-weight:650; }
+    .signal { display:flex; gap:1.5px; height:12px; align-items:flex-end; }
+    .signal i { display:block; width:3px; background:#f4f4f4; border-radius:2px; }
+    .signal i:nth-child(1){height:4px}.signal i:nth-child(2){height:6px}.signal i:nth-child(3){height:9px}.signal i:nth-child(4){height:12px}
+    .battery { background:#f5f5f5; color:#111; height:14px; border-radius:4px; padding:0 4px; line-height:14px; font-size:10px; position:relative; }
+    .battery:after { content:""; position:absolute; right:-3px; top:4px; width:2px; height:6px; background:#aaa; border-radius:0 2px 2px 0; }
+    .topbar { height:54px; display:flex; justify-content:space-between; align-items:center; padding:0 17px; }
+    .menu { width:17px; height:14px; display:flex; flex-direction:column; justify-content:space-between; }
+    .menu i { width:16px; height:2px; border-radius:2px; background:#777; }
+    .brand { position:absolute; left:50%; transform:translateX(-50%); display:flex; align-items:center; gap:4px; font-weight:750; font-style:italic; letter-spacing:-.7px; font-size:24px; }
+    .brand svg { width:21px; height:21px; stroke:#f5f5f5; fill:none; stroke-width:2.2; stroke-linecap:round; stroke-linejoin:round; }
+    .search-icon { width:19px; height:19px; border:2px solid #777; border-radius:50%; position:relative; }
+    .search-icon:after { content:""; position:absolute; width:8px; height:2px; background:#777; right:-6px; bottom:-3px; border-radius:2px; transform:rotate(48deg); }
+    .composer { height:67px; display:flex; align-items:center; gap:8px; padding:5px 8px; border-bottom:1px solid var(--line); }
+    .profile { width:39px; height:39px; flex:none; overflow:hidden; border-radius:50%; background:#f0f2f8; display:grid; place-items:center; }
+    .profile svg { width:39px; height:39px; }
+    .composer-copy { min-width:0; }
+    .handle { font-size:13px; font-weight:700; line-height:17px; }
+    .prompt { color:#858585; font-size:13px; line-height:18px; }
+    .post { position:relative; display:grid; grid-template-columns:37px minmax(0,1fr); column-gap:8px; padding:12px 8px 9px; border-bottom:1px solid var(--line); }
+    .post-avatar-wrap { position:relative; width:37px; height:42px; }
+    .post-avatar { width:37px; height:37px; border-radius:50%; overflow:hidden; border:1px solid #494949; background:#141414; }
+    .post-avatar img { width:100%; height:100%; object-fit:cover; }
+    .plus { display:none; }
+    .post-body { min-width:0; }
+    .meta { height:20px; display:flex; align-items:center; white-space:nowrap; gap:4px; overflow:hidden; font-size:12px; }
+    .post-user { font-weight:700; font-size:13px; }
+    .chevron { font-size:15px; color:#ccc; margin:0 1px; }
+    .ai { color:var(--blue); font-size:13px; font-weight:700; }
+    .time { color:#818181; font-size:12px; }
+    .thread-mark { position:absolute; top:13px; right:8px; width:17px; height:17px; }
+    .thread-mark svg { display:block; width:17px; height:17px; stroke:#f3f3f3; fill:none; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
+    .copy { font-size:13px; line-height:20px; letter-spacing:-.18px; color:#eee; overflow-wrap:anywhere; }
+    .copy p { margin:0 0 9px; }
+    .copy p:last-of-type { margin-bottom:7px; }
+    .link { display:block; color:var(--blue); text-decoration:none; line-height:19px; white-space:nowrap; }
+    .preview { display:block; width:100%; aspect-ratio:495 / 282; object-fit:cover; margin-top:9px; border-radius:13px; }
+    .actions { height:39px; display:flex; align-items:center; gap:19px; color:#bdbdbd; }
+    .action { display:flex; align-items:center; gap:5px; font-size:11px; line-height:1; white-space:nowrap; }
+    .action svg { width:17px; height:17px; stroke:#bdbdbd; fill:none; stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round; }
+    .next-post { height:180px; opacity:.35; padding:6px 8px; border-bottom:1px solid var(--line); overflow:hidden; display:grid; grid-template-columns:37px 1fr; gap:8px; }
+    .next-avatar { width:37px; height:37px; border-radius:50%; background:linear-gradient(140deg,#50666a,#282b30); }
+    .next-line { height:8px; border-radius:5px; background:#555; margin:6px 0; width:80%; }
+    .next-line.short { width:56%; }
+    .bottom-nav { position:fixed; z-index:5; width:min(calc(100% - 38px),353px); height:55px; bottom:calc(19px + env(safe-area-inset-bottom)); left:50%; transform:translateX(-50%); border:1px solid #646464; border-radius:48px; background:rgba(70,70,70,.78); backdrop-filter:blur(16px); display:flex; align-items:center; justify-content:space-around; box-shadow:0 3px 14px #0008; }
+    .nav-item { width:34px; height:38px; color:#f7f7f7; display:grid; place-items:center; }
+    .nav-item.selected { background:rgba(10,10,10,.82); width:75px; height:45px; border-radius:28px; margin-left:-3px; }
+    .nav-item svg { width:21px; height:21px; stroke:currentColor; fill:none; stroke-width:2.1; stroke-linecap:round; stroke-linejoin:round; }
+    .nav-item.selected svg { fill:#fff; stroke:#fff; }
+    @media (min-width:700px) { .bottom-nav { position:absolute; bottom:19px; } }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <div class="status"><span>12:05</span><div class="sys"><span class="signal"><i></i><i></i><i></i><i></i></span><span>5G</span><span class="battery">75</span></div></div>
+    <header class="topbar">
+      <span class="menu" aria-label="메뉴"><i></i><i></i><i></i></span>
+      <div class="brand"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12.2 3.1c-5 0-8.9 3.6-8.9 8.7 0 4.9 3.5 8.5 8.1 8.5 4.1 0 6.9-2.5 7.6-6.2.6-3.2-1.1-5.6-4.2-5.6-2.6 0-4.2 1.7-4.2 3.8 0 1.7 1.2 2.8 2.7 2.8 1.8 0 3.1-1.2 3.6-3.2"/><path d="M8 8.2c1.1-.9 2.6-1.3 4.1-1.3 2.7 0 5.3 1.2 7.1 3.2"/><path d="M14.2 12.1c-.2 1.2-.9 2-1.8 2-.7 0-1.1-.5-1.1-1.2 0-1 .8-1.8 2-1.8.5 0 .8.1 1 .2"/></svg><span>threads</span></div>
+      <span class="search-icon" aria-label="검색"></span>
+    </header>
+    <section class="composer">
+      <div class="profile" aria-hidden="true"><svg viewBox="0 0 39 39"><circle cx="19.5" cy="19.5" r="19.5" fill="#f2f3f8"/><circle cx="19.5" cy="14" r="7" fill="#9297a2"/><path d="M5 35c1.8-7 6.7-10.5 14.5-10.5S32.2 28 34 35" fill="#9297a2"/></svg></div>
+      <div class="composer-copy"><div class="handle">gunnyam_</div><div class="prompt">새로운 소식을 공유해보세요.</div></div>
+    </section>
+    <article class="post">
+      <div class="post-avatar-wrap"><div class="post-avatar"><img src="assets/rlaope-avatar.jpg" alt="" /></div><span class="plus">+</span></div>
+      <div class="post-body">
+        <div class="meta"><span class="post-user">rlaope</span><span class="chevron">›</span><span class="ai">✿ AI Threads</span><span class="time">19시간</span></div>
+        <div class="copy">
+          <p>거의 1조 토큰을 혼자 헤르메스로 태워보면서 세운 엔지니어링 원칙과 플러그인들을 하나로 패키징해 오픈소스로 만들었습니다.</p>
+          <p>서브에이전트들이 실제 코워커처럼 협업하도록 오케스트레이션하며,<br />TDD, code-mode, 전용 코드 리뷰 레인과 명확한 종료 기준을 세워 병렬 워크플로우와 goal 루프로 일하게 합니다.</p>
+          <p>대폭 강화된 기억력 저장소와 표현 방식을 통해<br />설치 한 번으로 당신의 헤르메스 기억력을 수배 끌어올리고,<br />토큰은 수배 아끼며,<br />결과물은 수배 더 좋게 만들어 줍니다.</p>
+          <p>그 외에도 연구자를 위한 리서치 원칙, 슬롭 클리너 규칙,<br />비디오 생성·디자인·아티스트 워크플로우와 다양한 스킬,<br />그리고 Native TUI까지 모두 담았습니다.</p>
+          <p>oh my hermes를 만나보세요.</p>
+          <a class="link" href="https://github.com/rlaope" aria-label="GitHub 링크">github.com/rlaop...</a>
+          <img class="preview" src="assets/hermes-preview.jpg" alt="Your Hermes bots and coding agents, in one window" />
+        </div>
+        <div class="actions">
+          <span class="action"><svg viewBox="0 0 24 24"><path d="M20.8 8.7c0 5.2-8.8 11-8.8 11s-8.8-5.8-8.8-11a4.7 4.7 0 0 1 8.8-2.2 4.7 4.7 0 0 1 8.8 2.2Z"/></svg>46</span>
+          <span class="action"><svg viewBox="0 0 24 24"><path d="M21 11.5a8.4 8.4 0 0 1-9 8.3 9.5 9.5 0 0 1-4-.9L3 21l1.4-4.3a8 8 0 0 1-1.5-4.7 8.5 8.5 0 0 1 9-8.3 8.5 8.5 0 0 1 9.1 7.8Z"/></svg>3</span>
+          <span class="action"><svg viewBox="0 0 24 24"><path d="M20 7v5h-5M4 17v-5h5"/><path d="M5.5 9a7.5 7.5 0 0 1 12.7-2L20 12M4 12l1.8 5a7.5 7.5 0 0 0 12.7-2"/></svg>18</span>
+          <span class="action"><svg viewBox="0 0 24 24"><path d="m4 3 16 9-16 9z"/></svg>26</span>
+        </div>
+      </div>
+      <span class="thread-mark" aria-label="Threads"><svg viewBox="0 0 24 24"><path d="M12 3c-5 0-8.5 3.5-8.5 9s3.5 9 8.5 9 8-3 8-8-3-8-8-8c-3.4 0-5.5 1.8-5.5 4.3 0 2.2 1.5 3.7 3.8 3.7 2.7 0 4.6-2.4 4.6-5.6"/><path d="M8 7.5c1.2-.9 2.6-1.3 4.2-1.3 3.1 0 5.5 1.3 7 3.7"/></svg></span>
+    </article>
+    <div class="next-post" aria-hidden="true"><div class="next-avatar"></div><div><div class="next-line"></div><div class="next-line short"></div><div class="next-line"></div></div></div>
+  </main>
+  <nav class="bottom-nav" aria-label="하단 메뉴">
+    <a class="nav-item selected" href="index.html" aria-label="홈"><svg viewBox="0 0 24 24"><path d="M3 10.7 12 3l9 7.7v9a1.3 1.3 0 0 1-1.3 1.3h-5.1v-6.5H9.4V21H4.3A1.3 1.3 0 0 1 3 19.7z"/></svg></a>
+    <a class="nav-item" href="#" aria-label="동영상"><svg viewBox="0 0 24 24"><path d="m4 4 15 8-15 8z"/></svg></a>
+    <a class="nav-item" href="#" aria-label="만들기"><svg viewBox="0 0 24 24"><path d="M12 4v16M4 12h16"/></svg></a>
+    <a class="nav-item" href="#" aria-label="좋아요"><svg viewBox="0 0 24 24"><path d="M20.8 8.7c0 5.2-8.8 11-8.8 11s-8.8-5.8-8.8-11a4.7 4.7 0 0 1 8.8-2.2 4.7 4.7 0 0 1 8.8 2.2Z"/></svg></a>
+    <a class="nav-item" href="#" aria-label="프로필"><svg viewBox="0 0 24 24"><circle cx="12" cy="7.5" r="4"/><path d="M4 21c.5-4.2 3.5-6.5 8-6.5s7.5 2.3 8 6.5"/></svg></a>
+  </nav>
+</body>
+</html>
