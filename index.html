@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#101010" />
+  <title>검색 · 추천 계정</title>
+  <style>
+    :root { color-scheme: dark; --bg:#101010; --panel:#202020; --muted:#858585; --line:#242424; --white:#f5f5f5; }
+    * { box-sizing:border-box; }
+    html,body { margin:0; min-height:100%; background:var(--bg); color:var(--white); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans KR",sans-serif; }
+    body { overflow-x:hidden; }
+    .phone { width:100%; max-width:600px; min-height:100svh; margin:0 auto; position:relative; background:var(--bg); padding-bottom:112px; }
+    .status { height:72px; padding:25px 9.4% 0 15.3%; display:flex; align-items:flex-start; justify-content:space-between; font-size:22px; font-weight:650; letter-spacing:-.5px; }
+    .sys { display:flex; align-items:center; gap:8px; font-size:17px; font-weight:650; }
+    .signal { display:flex; gap:2px; height:17px; align-items:flex-end; }
+    .signal i { display:block; width:4px; background:#f4f4f4; border-radius:2px; }
+    .signal i:nth-child(1){height:6px}.signal i:nth-child(2){height:9px}.signal i:nth-child(3){height:13px}.signal i:nth-child(4){height:17px}
+    .battery { background:#f5f5f5; color:#111; height:20px; border-radius:5px; padding:0 5px; line-height:20px; font-size:14px; position:relative; }
+    .battery:after { content:""; position:absolute; right:-3px; top:6px; width:2px; height:8px; background:#aaa; border-radius:0 2px 2px 0; }
+    .heading { height:67px; display:flex; align-items:center; gap:10px; padding:0 22px; }
+    .back { width:24px; height:24px; display:grid; place-items:center; }
+    .back:before { content:""; width:13px; height:13px; border-left:2.5px solid white; border-bottom:2.5px solid white; transform:rotate(45deg); margin-left:6px; }
+    h1 { font-size:37px; letter-spacing:-1.7px; line-height:1; margin:0; font-weight:750; }
+    .search-wrap { padding:11px 22px 0; }
+    .search { height:59px; border-radius:19px; background:#202020; display:flex; align-items:center; gap:12px; padding:0 17px; color:#737373; }
+    .glass { width:16px; height:16px; border:1.8px solid #737373; border-radius:50%; position:relative; flex:none; }
+    .glass:after { content:""; position:absolute; width:6px; height:1.8px; background:#737373; right:-4px; bottom:-2px; transform:rotate(48deg); border-radius:2px; }
+    .search input { outline:0; border:0; background:none; color:#eee; font:inherit; font-size:17px; width:100%; }
+    .search input::placeholder { color:#777; }
+    .tags { padding:13px 0 17px 22px; border-bottom:1px solid var(--line); overflow:hidden; }
+    .tag-row { display:flex; gap:10px; width:max-content; margin-bottom:12px; }
+    .tag-row:last-child { margin-bottom:0; }
+    .tag { padding:10px 17px; background:#202020; border-radius:30px; font-size:16px; line-height:22px; font-weight:600; white-space:nowrap; cursor:pointer; user-select:none; }
+    .tag.active { background:#f4f4f4; color:#111; }
+    .section-title { color:#888; font-size:17px; font-weight:650; padding:26px 22px 22px; }
+    .accounts { padding-left:22px; }
+    .account { min-height:120px; padding:13px 22px 13px 0; border-bottom:1px solid var(--line); position:relative; }
+    .main-row { display:flex; align-items:flex-start; gap:13px; min-height:54px; padding-right:145px; }
+    .avatar { width:48px; height:48px; flex:none; border-radius:50%; border:1.5px solid #555; display:grid; place-items:center; overflow:hidden; font-size:27px; background:linear-gradient(145deg,#f6d56b,#db6850); }
+    .avatar.a2 { background:linear-gradient(145deg,#a5f329,#177d44); }
+    .avatar.a3 { background:linear-gradient(145deg,#f5f5f5,#d9d9d9); }
+    .avatar.a4 { background:radial-gradient(circle,#db132b 0 22%,#15090b 24% 100%); }
+    .avatar.a5 { background:#f8d472; }
+    .avatar.a6 { background:#eee0d1; }
+    .avatar.a7 { background:#191919; }
+    .avatar.a8 { background:#8fc4ff; }
+    .copy { min-width:0; padding-top:0; }
+    .name { display:flex; align-items:center; gap:5px; font-size:18px; line-height:24px; font-weight:700; letter-spacing:-.35px; white-space:nowrap; }
+    .verified { color:#16a8ef; font-size:16px; }
+    .bio { color:#818181; font-size:17px; line-height:23px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:340px; }
+    .follow { position:absolute; right:22px; top:13px; height:46px; width:141px; border:0; border-radius:15px; background:#fff; color:#111; font-size:17px; font-weight:700; cursor:pointer; }
+    .follow.following { background:#333; color:#f5f5f5; }
+    .followers { font-size:17px; line-height:24px; color:#ddd; margin:10px 0 0 61px; }
+    .mutual { display:flex; align-items:center; gap:8px; margin:9px 0 0 61px; color:#ccc; font-size:17px; }
+    .mutual-face { width:22px; height:22px; border-radius:50%; display:grid; place-items:center; font-size:14px; background:#aaa; }
+    .bottom-nav { position:fixed; z-index:5; width:min(calc(100% - 58px),542px); height:82px; bottom:calc(28px + env(safe-area-inset-bottom)); left:50%; transform:translateX(-50%); border:1px solid #646464; border-radius:48px; background:rgba(70,70,70,.78); backdrop-filter:blur(16px); display:flex; align-items:center; justify-content:space-around; box-shadow:0 3px 14px #0008; }
+    .nav-item { width:50px; height:56px; color:#f7f7f7; display:grid; place-items:center; border-radius:28px; }
+    .nav-item.selected { background:rgba(10,10,10,.8); width:112px; height:67px; margin-left:-5px; }
+    .nav-item svg { width:31px; height:31px; stroke:currentColor; fill:none; stroke-width:2.3; stroke-linecap:round; stroke-linejoin:round; }
+    .nav-item.selected svg { fill:#fff; stroke:#fff; width:30px; height:30px; }
+    @media (min-width:700px) { .phone { border-left:1px solid #222; border-right:1px solid #222; } .bottom-nav { position:absolute; bottom:28px; } }
+  </style>
+</head>
+<body>
+  <main class="phone">
+    <div class="status"><span>11:09</span><div class="sys"><span class="signal"><i></i><i></i><i></i><i></i></span><span>5G</span><span class="battery">81</span></div></div>
+    <header class="heading"><span class="back" aria-hidden="true"></span><h1>검색</h1></header>
+    <div class="search-wrap"><label class="search"><span class="glass"></span><input id="search" type="search" placeholder="검색" aria-label="검색" /></label></div>
+    <div class="tags" aria-label="추천 검색어">
+      <div class="tag-row"><span class="tag">Game Dev</span><span class="tag">Grok Bot</span><span class="tag">후쿠오카</span><span class="tag">클로드</span><span class="tag">프롬프트</span><span class="tag">비트코인</span></div>
+      <div class="tag-row"><span class="tag">부산</span><span class="tag">Grok</span><span class="tag">fable 5.2</span><span class="tag">오사카</span><span class="tag">패딩</span><span class="tag">제주</span><span class="tag">피클 AI</span></div>
+    </div>
+    <div class="section-title">팔로우 추천</div>
+    <section class="accounts" id="accounts">
+      <article class="account" data-search="joongcar 종카tv 안동호"><div class="main-row"><div class="avatar">👨🏻</div><div class="copy"><div class="name">joongcar</div><div class="bio">종카tv | 안동호 |</div></div></div><button class="follow">팔로우</button><div class="followers">팔로워 1만명</div></article>
+      <article class="account" data-search="chojerry 조제리"><div class="main-row"><div class="avatar a2">🥽</div><div class="copy"><div class="name">chojerry_</div><div class="bio">조제리</div></div></div><button class="follow">팔로우</button><div class="followers">팔로워 7,380명</div></article>
+      <article class="account" data-search="decision movie 영화 볼 결심"><div class="main-row"><div class="avatar a3">🎥</div><div class="copy"><div class="name">decision_movie <span class="verified">✿</span></div><div class="bio">영화 볼 결심</div></div></div><button class="follow">팔로우</button><div class="followers">팔로워 2.9만명</div></article>
+      <article class="account" data-search="paulblancobain paul blanco"><div class="main-row"><div class="avatar a4">✥</div><div class="copy"><div class="name">paulblancobain <span class="verified">✿</span></div><div class="bio">Paul Blanco</div></div></div><button class="follow">팔로우</button><div class="mutual"><span class="mutual-face">🌚</span>팔로워 2.2만명</div></article>
+      <article class="account" data-search="heyjapan kr 기초 일본어 학습 앱"><div class="main-row"><div class="avatar a5">🐱</div><div class="copy"><div class="name">heyjapan_kr</div><div class="bio">✨HeyJapan✨ 기초 일본어 학습 앱</div></div></div><button class="follow">팔로우</button><div class="followers">팔로워 1,340명</div></article>
+      <article class="account" data-search="moko zakura mokochan truck cook"><div class="main-row"><div class="avatar a6">👩🏻‍🍳</div><div class="copy"><div class="name">mokozakura</div><div class="bio">Mokochan truck cook !</div></div></div><button class="follow">팔로우</button><div class="followers">팔로워 28.5만명</div></article>
+      <article class="account" data-search="locally official"><div class="main-row"><div class="avatar a7">ℒ</div><div class="copy"><div class="name">locally.official</div><div class="bio">로컬리 | 일본여행 공식 인스타그램</div></div></div><button class="follow">팔로우</button><div class="followers">팔로워 2.5만명</div></article>
+      <article class="account" data-search="daily design"><div class="main-row"><div class="avatar a8">🌼</div><div class="copy"><div class="name">daily.design</div><div class="bio">좋은 영감과 디자인 이야기</div></div></div><button class="follow">팔로우</button><div class="followers">팔로워 8,920명</div></article>
+    </section>
+  </main>
+  <nav class="bottom-nav" aria-label="하단 메뉴">
+    <a class="nav-item selected" href="#" aria-label="홈"><svg viewBox="0 0 24 24"><path d="M3 10.7 12 3l9 7.7v9a1.3 1.3 0 0 1-1.3 1.3h-5.1v-6.5H9.4V21H4.3A1.3 1.3 0 0 1 3 19.7z"/></svg></a>
+    <a class="nav-item" href="#" aria-label="동영상"><svg viewBox="0 0 24 24"><path d="m4 4 15 8-15 8z"/></svg></a>
+    <a class="nav-item" href="#" aria-label="만들기"><svg viewBox="0 0 24 24"><path d="M12 4v16M4 12h16"/></svg></a>
+    <a class="nav-item" href="#" aria-label="좋아요"><svg viewBox="0 0 24 24"><path d="M20.8 8.7c0 5.2-8.8 11-8.8 11s-8.8-5.8-8.8-11a4.7 4.7 0 0 1 8.8-2.2 4.7 4.7 0 0 1 8.8 2.2Z"/></svg></a>
+    <a class="nav-item" href="#" aria-label="프로필"><svg viewBox="0 0 24 24"><circle cx="12" cy="7.5" r="4"/><path d="M4 21c.5-4.2 3.5-6.5 8-6.5s7.5 2.3 8 6.5"/></svg></a>
+  </nav>
+  <script>
+    const search = document.querySelector('#search');
+    const accounts = [...document.querySelectorAll('.account')];
+    function filterAccounts(value) {
+      const query = value.trim().toLocaleLowerCase('ko');
+      accounts.forEach(account => account.hidden = query && !account.dataset.search.toLocaleLowerCase('ko').includes(query));
+    }
+    search.addEventListener('input', () => filterAccounts(search.value));
+    document.querySelectorAll('.tag').forEach(tag => tag.addEventListener('click', () => {
+      document.querySelectorAll('.tag').forEach(item => item.classList.remove('active'));
+      tag.classList.add('active'); search.value = tag.textContent; filterAccounts(tag.textContent);
+    }));
+    document.querySelectorAll('.follow').forEach(button => button.addEventListener('click', () => {
+      const following = button.classList.toggle('following'); button.textContent = following ? '팔로잉' : '팔로우';
+    }));
+  </script>
+</body>
+</html>
