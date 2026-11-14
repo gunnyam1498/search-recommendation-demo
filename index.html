@@ -60,6 +60,46 @@
     .nav-item svg { width:31px; height:31px; stroke:currentColor; fill:none; stroke-width:2.3; stroke-linecap:round; stroke-linejoin:round; }
     .nav-item.selected svg { fill:#fff; stroke:#fff; width:30px; height:30px; }
     @media (min-width:700px) { .phone { border-left:1px solid #222; border-right:1px solid #222; } .bottom-nav { position:absolute; bottom:28px; } }
+    /* The reference is a 589 px physical screenshot (about 393 CSS px on a phone). */
+    @media (max-width:600px) {
+      .phone { max-width:600px; padding-bottom:76px; }
+      .status { height:48px; padding:17px 9.4% 0 15.3%; font-size:15px; }
+      .sys { gap:6px; font-size:12px; }
+      .signal { height:12px; gap:1.5px; }
+      .signal i { width:3px; }
+      .signal i:nth-child(1){height:4px}.signal i:nth-child(2){height:6px}.signal i:nth-child(3){height:9px}.signal i:nth-child(4){height:12px}
+      .battery { height:14px; padding:0 4px; line-height:14px; font-size:10px; border-radius:4px; }
+      .battery:after { top:4px; height:6px; }
+      .heading { height:45px; gap:7px; padding:0 15px; }
+      .back { width:16px; height:16px; }
+      .back:before { width:9px; height:9px; border-width:2px; }
+      h1 { font-size:25px; letter-spacing:-1.1px; }
+      .search-wrap { padding:7px 15px 0; }
+      .search { height:39px; border-radius:13px; gap:8px; padding:0 12px; }
+      .glass { width:11px; height:11px; border-width:1.3px; }
+      .glass:after { width:4px; height:1.3px; right:-3px; bottom:-1px; }
+      .search input { font-size:12px; }
+      .tags { padding:9px 0 11px 15px; }
+      .tag-row { gap:7px; margin-bottom:8px; }
+      .tag { padding:7px 11px; font-size:11px; line-height:15px; }
+      .section-title { font-size:11px; padding:17px 15px 14px; }
+      .accounts { padding-left:15px; }
+      .account { min-height:80px; padding:9px 15px 9px 0; }
+      .main-row { gap:9px; min-height:36px; padding-right:98px; }
+      .avatar { width:32px; height:32px; font-size:18px; border-width:1px; }
+      .name { gap:4px; font-size:12px; line-height:16px; }
+      .verified { font-size:11px; }
+      .bio { font-size:11px; line-height:15px; max-width:230px; }
+      .follow { right:15px; top:9px; height:31px; width:94px; border-radius:10px; font-size:11px; }
+      .followers { font-size:11px; line-height:16px; margin:7px 0 0 41px; }
+      .mutual { gap:5px; margin:6px 0 0 41px; font-size:11px; }
+      .mutual-face { width:15px; height:15px; font-size:10px; }
+      .bottom-nav { width:min(calc(100% - 38px),362px); height:55px; bottom:calc(19px + env(safe-area-inset-bottom)); }
+      .nav-item { width:34px; height:38px; }
+      .nav-item.selected { width:75px; height:45px; margin-left:-3px; }
+      .nav-item svg { width:21px; height:21px; stroke-width:2.1; }
+      .nav-item.selected svg { width:20px; height:20px; }
+    }
   </style>
 </head>
 <body>
